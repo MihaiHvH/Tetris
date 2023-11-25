@@ -38,3 +38,11 @@ void pGraphics::pButon::draw(pInterface interface) {
     interface.graphics.drawRect(pos, size, color);
     interface.graphics.drawText({ pos.first + ((size.first - textSize.first) / 2), pos.second + (size.second / 2) + textSize.second / 2 }, font, text.c_str(), textColor);   
 }
+
+void pGraphics::pButon::updatePos(std::pair<int, int> newPos) {
+    pos = newPos;
+}
+
+void pGraphics::pButon::updateSize(std::pair<int, int> newSize) {
+    size = newSize;
+}

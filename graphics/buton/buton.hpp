@@ -28,4 +28,6 @@ class pGraphics::pButon {
     ~pButon();
     void draw(pInterface interface);
     void checkClick(pInterface interface);
+    void updatePos(std::pair<int, int> newPos);
+    void updateSize(std::pair<int, int> newSize);
 };

@@ -10,7 +10,6 @@ class pInterface {
     void drawSquare(std::pair<int, int> pos, pPieceColor color);
     void renderSquare(std::pair<int, int> pos, pPieceColor color, std::vector<std::pair<int, int>> &posMax, bool show = true);
     void updateMaxPos(pPiece piece);
-    void computeBorder();
     void computeHitbox(pPiece &piece, std::pair<int, int> pos);
     void checkLevelOrScoreIncrease();
     public:
@@ -20,6 +19,7 @@ class pInterface {
     bool bInit = false;
     void init();
 
+    void computeBorder();
     void drawPieces();
     void drawFrame();
     void drawPiece(pPiece &piece, bool onlyCalcPosMax = false);

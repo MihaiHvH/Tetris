@@ -17,6 +17,7 @@ struct pScreen {
     std::pair<int, int> size;
     std::pair<int, int> initialSize = { 680, 640 };
     std::pair<int, int> mousePointer;
+    std::pair<int, int> pieceSize = { 40, 40 };
     bool leftClick = false;
     bool rightClick = false;
     bool leftClickDrag = false;

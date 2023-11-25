@@ -76,8 +76,8 @@ pInterface::pInterface(void(*pRender)(void)) {
 void pInterface::init() {
     if (!bInit) {
         for (int i = 0; i <= 15; ++i) {
-            if (i <= 10) border.push_back({ i * 40, 15 * 40 });
-            border.push_back({ 0 * 40, i * 40 }), border.push_back({ 11 * 40, i * 40 });
+            if (i <= 10) border.push_back({ i * screen.pieceSize.first, 15 * screen.pieceSize.second });
+            border.push_back({ 0 * screen.pieceSize.first, i * screen.pieceSize.second }), border.push_back({ 11 * screen.pieceSize.first, i * screen.pieceSize.second });
         }
         spawnPiece();
         spawnPiece();
@@ -148,8 +148,8 @@ void pInterface::drawNextPiece() {
         nextPiece = pieces.at(pieces.size() - 1);
         drawPiece(nextPiece, true);
         nextPiece.pos = {
-            12 * 40 + (3 * 40 - (nextPiece.posMax.first - nextPiece.pos.first)) / 2,
-            40 + (3 * 40 - (nextPiece.posMax.second - nextPiece.pos.second)) / 2
+            12 * screen.pieceSize.first + (3 * screen.pieceSize.first - (nextPiece.posMax.first - nextPiece.pos.first)) / 2,
+            screen.pieceSize.second + (3 * screen.pieceSize.second - (nextPiece.posMax.second - nextPiece.pos.second)) / 2
         };
         drawPiece(nextPiece);
     }
@@ -157,18 +157,18 @@ void pInterface::drawNextPiece() {
 
 void pInterface::drawFrame() {
     for (int i = 0; i <= 11; ++i) {
-        drawSquare({ 40 * i, 0 }, block);
-        drawSquare({ 40 * i, 40 * 15 }, block);    
+        drawSquare({ screen.pieceSize.first * i, 0 }, block);
+        drawSquare({ screen.pieceSize.first * i, screen.pieceSize.second * 15 }, block);    
     }
     for (int i = 1; i <= 14; ++i) {
-        drawSquare({ 0, i * 40 }, block);
-        drawSquare({ 11 * 40, i * 40 }, block);
-        drawSquare({ 16 * 40, i * 40 }, block);
+        drawSquare({ 0, i * screen.pieceSize.second }, block);
+        drawSquare({ 11 * screen.pieceSize.first, i * screen.pieceSize.second }, block);
+        drawSquare({ 16 * screen.pieceSize.first, i * screen.pieceSize.second }, block);
     }
     for (int i = 12; i <= 16; ++i) {
-        drawSquare({ 40 * i, 0 }, block);
-        drawSquare({ 40 * i, 40 * 15 }, block);
-        drawSquare({ 40 * i, 40 * 5 }, block);
+        drawSquare({ screen.pieceSize.first * i, 0 }, block);
+        drawSquare({ screen.pieceSize.first * i, screen.pieceSize.second * 15 }, block);
+        drawSquare({ screen.pieceSize.first * i, screen.pieceSize.second * 5 }, block);
     }
 }
 
@@ -179,17 +179,17 @@ void pInterface::drawGameOverScreen() {
         std::pair<int, int> scoreTextSize = graphics.getTextSize(std::string("Score: ").append(std::to_string(screen.score)).c_str(), font);
         std::pair<int, int> levelTextSize = graphics.getTextSize(std::string("Level: ").append(std::to_string(screen.level)).c_str(), font);
         std::pair<int, int> linesTextSize = graphics.getTextSize(std::string("Lines: ").append(std::to_string(screen.lines)).c_str(), font);
-        graphics.drawRect({ 0, 6 * 40 }, { 17 * 40, 4 * 40 }, red);
-        graphics.drawText({ (17 * 40) / 2 - scoreTextSize.first / 2, 6 * 40 + 20 + scoreTextSize.second / 2 }, font, std::string("Score: ").append(std::to_string(screen.score)).c_str(), graphics.black);
-        graphics.drawText({ (17 * 40) / 2 - levelTextSize.first / 2, 7 * 40 + 20 + levelTextSize.second / 2 }, font, std::string("Level: ").append(std::to_string(screen.level)).c_str(), graphics.black);
-        graphics.drawText({ (17 * 40) / 2 - linesTextSize.first / 2, 8 * 40 + 20 + linesTextSize.second / 2 }, font, std::string("Lines: ").append(std::to_string(screen.lines)).c_str(), graphics.black);
+        graphics.drawRect({ 0, 6 * screen.pieceSize.second }, { 17 * screen.pieceSize.first, 4 * screen.pieceSize.second }, red);
+        graphics.drawText({ (17 * screen.pieceSize.first) / 2 - scoreTextSize.first / 2, 6 * screen.pieceSize.second + screen.pieceSize.second / 2 + scoreTextSize.second / 2 }, font, std::string("Score: ").append(std::to_string(screen.score)).c_str(), graphics.black);
+        graphics.drawText({ (17 * screen.pieceSize.first) / 2 - levelTextSize.first / 2, 7 * screen.pieceSize.second + screen.pieceSize.second / 2 + levelTextSize.second / 2 }, font, std::string("Level: ").append(std::to_string(screen.level)).c_str(), graphics.black);
+        graphics.drawText({ (17 * screen.pieceSize.first) / 2 - linesTextSize.first / 2, 8 * screen.pieceSize.second + screen.pieceSize.second / 2 + linesTextSize.second / 2 }, font, std::string("Lines: ").append(std::to_string(screen.lines)).c_str(), graphics.black);
     }
 }
 
 void pInterface::spawnPiece() {
     pPiece newPiece;
 
-    newPiece.pos = { 5 * 40, 2 * 40 };
+    newPiece.pos = { 5 * screen.pieceSize.first, 2 * screen.pieceSize.second };
     newPiece.color = genRandomPieceColor();
     newPiece.rotation = 0;
     newPiece.type = genRandomPieceType();
@@ -198,21 +198,21 @@ void pInterface::spawnPiece() {
 }
 
 void pInterface::drawSquare(std::pair<int, int> pos, pPieceColor color) {
-    graphics.drawPolygon(pos, { pos.first + 40, pos.second }, 
-                        { pos.first + 40 - 5, pos.second + 5 },
-                        { pos.first + 5, pos.second + 5 }, color.up);
-    graphics.drawPolygon(pos, { pos.first + 5, pos.second + 5 }, 
-                        { pos.first + 5, pos.second + 40 - 5 },
-                        { pos.first, pos.second + 40 }, color.left);
-    graphics.drawPolygon({ pos.first + 5, pos.second + 40 - 5 },
-                        { pos.first + 40 - 5, pos.second + 40 - 5 },
-                        { pos.first + 40, pos.second + 40 },
-                        { pos.first, pos.second + 40 }, color.down);
-    graphics.drawPolygon({ pos.first + 40 - 5, pos.second + 5 },
-                        { pos.first + 40, pos.second },
-                        { pos.first + 40, pos.second + 40 },
-                        { pos.first + 40 - 5, pos.second + 40 - 5 }, color.right);
-    graphics.drawRect({ pos.first + 5, pos.second + 5 }, { 40 - 10, 40 - 10 }, color.main);
+    graphics.drawPolygon(pos, { pos.first + screen.pieceSize.first, pos.second }, 
+                        { pos.first + screen.pieceSize.first - screen.pieceSize.first / 8, pos.second + screen.pieceSize.second / 8 },
+                        { pos.first + screen.pieceSize.first / 8, pos.second + screen.pieceSize.second / 8 }, color.up);
+    graphics.drawPolygon(pos, { pos.first + screen.pieceSize.first / 8, pos.second + screen.pieceSize.second / 8 }, 
+                        { pos.first + screen.pieceSize.first / 8, pos.second + screen.pieceSize.second - screen.pieceSize.second / 8 },
+                        { pos.first, pos.second + screen.pieceSize.second }, color.left);
+    graphics.drawPolygon({ pos.first + screen.pieceSize.first / 8, pos.second + screen.pieceSize.second - screen.pieceSize.second / 8 },
+                        { pos.first + screen.pieceSize.first - screen.pieceSize.first / 8, pos.second + screen.pieceSize.second - screen.pieceSize.second / 8 },
+                        { pos.first + screen.pieceSize.first, pos.second + screen.pieceSize.second },
+                        { pos.first, pos.second + screen.pieceSize.second }, color.down);
+    graphics.drawPolygon({ pos.first + screen.pieceSize.first - screen.pieceSize.first / 8, pos.second + screen.pieceSize.second / 8 },
+                        { pos.first + screen.pieceSize.first, pos.second },
+                        { pos.first + screen.pieceSize.first, pos.second + screen.pieceSize.second },
+                        { pos.first + screen.pieceSize.first - screen.pieceSize.first / 8, pos.second + screen.pieceSize.second - screen.pieceSize.second / 8 }, color.right);
+    graphics.drawRect({ pos.first + screen.pieceSize.first / 8, pos.second + screen.pieceSize.second / 8 }, { screen.pieceSize.first - screen.pieceSize.first / 4, screen.pieceSize.second - screen.pieceSize.second / 4 }, color.main);
 }
 
 void pInterface::computeHitbox(pPiece &piece, std::pair<int, int> pos) {
@@ -239,130 +239,130 @@ void pInterface::drawPiece(pPiece &piece, bool onlyCalcPosMax) {
     switch (piece.type) {
         case ePieceType::I:
         for (int i = 0; i <= 3; ++i) {
-            if (piece.rotation == 0 || piece.rotation == 360 || piece.rotation == 180) computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second }), renderSquare({ piece.pos.first + 40 * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
-            if (piece.rotation == 90 || piece.rotation == 270) computeHitbox(piece, { piece.pos.first, piece.pos.second + 40 * i }), renderSquare({ piece.pos.first, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax); 
+            if (piece.rotation == 0 || piece.rotation == 360 || piece.rotation == 180) computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second }), renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
+            if (piece.rotation == 90 || piece.rotation == 270) computeHitbox(piece, { piece.pos.first, piece.pos.second + screen.pieceSize.second * i }), renderSquare({ piece.pos.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax); 
         }
         piece.posMax = posMax.at(0);
         break;
         case ePieceType::J:
             if (piece.rotation == 0 || piece.rotation == 360) {
-                computeHitbox(piece, { piece.pos.first + 2 * 40, piece.pos.second + 40 });
-                renderSquare({ piece.pos.first + 2 * 40, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first + 2 * screen.pieceSize.first, piece.pos.second + screen.pieceSize.second });
+                renderSquare({ piece.pos.first + 2 * screen.pieceSize.first, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second }), renderSquare({ piece.pos.first + 40 * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second }), renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 90) {
-                computeHitbox(piece, { piece.pos.first, piece.pos.second + 2 * 40 });
-                renderSquare({ piece.pos.first, piece.pos.second + 2 * 40 }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first, piece.pos.second + 2 * screen.pieceSize.second });
+                renderSquare({ piece.pos.first, piece.pos.second + 2 * screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40, piece.pos.second + 40 * i }), renderSquare({ piece.pos.first + 40, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * i }), renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 180) {
                 computeHitbox(piece, piece.pos);
                 renderSquare(piece.pos, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second + 40 }), renderSquare({ piece.pos.first + 40 * i, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second }), renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 270) {
-                computeHitbox(piece, { piece.pos.first + 40, piece.pos.second });
-                renderSquare({ piece.pos.first + 40, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second });
+                renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first, piece.pos.second + 40 * i }), renderSquare({ piece.pos.first, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first, piece.pos.second + screen.pieceSize.second * i }), renderSquare({ piece.pos.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax);
             }
             
         piece.posMax = posMax.at(0);
         break;
         case ePieceType::L:
             if (piece.rotation == 0 || piece.rotation == 360) {
-                computeHitbox(piece, { piece.pos.first, piece.pos.second + 40 });
-                renderSquare({ piece.pos.first, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first, piece.pos.second + screen.pieceSize.second });
+                renderSquare({ piece.pos.first, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second }), renderSquare({ piece.pos.first + 40 * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second }), renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 90) {
                 computeHitbox(piece, piece.pos);
                 renderSquare(piece.pos, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40, piece.pos.second + 40 * i }), renderSquare({ piece.pos.first + 40, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * i }), renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 180) {
-                computeHitbox(piece, { piece.pos.first + 40 * 2, piece.pos.second });
-                renderSquare({ piece.pos.first + 40 * 2, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * 2, piece.pos.second });
+                renderSquare({ piece.pos.first + screen.pieceSize.first * 2, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second + 40 }), renderSquare({ piece.pos.first + 40 * i, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second }), renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 270) {
-                computeHitbox(piece, { piece.pos.first + 40, piece.pos.second + 2 * 40 });
-                renderSquare({ piece.pos.first + 40, piece.pos.second + 2 * 40 }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second + 2 * screen.pieceSize.second });
+                renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second + 2 * screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first, piece.pos.second + 40 * i }), renderSquare({ piece.pos.first, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first, piece.pos.second + screen.pieceSize.second * i }), renderSquare({ piece.pos.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax);
             }
         piece.posMax = posMax.at(0);
         break;
         case ePieceType::O:
             for (int i = 0; i <= 1; ++i)
                 for (int j = 0; j <= 1; ++j)
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second + 40 * j }), renderSquare({ piece.pos.first + 40 * i, piece.pos.second + 40 * j }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second * j }), renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second * j }, piece.color, posMax, !onlyCalcPosMax);
         piece.posMax = posMax.at(0);
         break;
         case ePieceType::Z:
             if (piece.rotation == 0 || piece.rotation == 360 || piece.rotation == 180)
                 for (int i = 0; i <= 1; ++i) {
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second });
-                    renderSquare({ piece.pos.first + 40 * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
-                    computeHitbox(piece, { piece.pos.first + 40 * (i+1), piece.pos.second + 40 });
-                    renderSquare({ piece.pos.first + 40 * (i+1), piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second });
+                    renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * (i+1), piece.pos.second + screen.pieceSize.second });
+                    renderSquare({ piece.pos.first + screen.pieceSize.first * (i+1), piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
                 }
             if (piece.rotation == 90 || piece.rotation == 270)
                 for (int i = 0; i <= 1; ++i) {
-                    computeHitbox(piece, { piece.pos.first + 40, piece.pos.second + 40 * i });
-                    renderSquare({ piece.pos.first + 40, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax);
-                    computeHitbox(piece, { piece.pos.first, piece.pos.second + 40 * (i+1) });
-                    renderSquare({ piece.pos.first, piece.pos.second + 40 * (i+1) }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * i });
+                    renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first, piece.pos.second + screen.pieceSize.second * (i+1) });
+                    renderSquare({ piece.pos.first, piece.pos.second + screen.pieceSize.second * (i+1) }, piece.color, posMax, !onlyCalcPosMax);
                 }
         piece.posMax = posMax.at(0);
         break;
         case ePieceType::S:
             if (piece.rotation == 0 || piece.rotation == 360 || piece.rotation == 180)
                 for (int i = 0; i <= 1; ++i) {
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second + 40 });
-                    renderSquare({ piece.pos.first + 40 * i, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
-                    computeHitbox(piece, { piece.pos.first + 40 * (i+1), piece.pos.second });
-                    renderSquare({ piece.pos.first + 40 * (i+1), piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);    
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second });
+                    renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * (i+1), piece.pos.second });
+                    renderSquare({ piece.pos.first + screen.pieceSize.first * (i+1), piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);    
                 }
             if (piece.rotation == 90 || piece.rotation == 270)
                 for (int i = 0; i <= 1; ++i) {
-                    computeHitbox(piece, { piece.pos.first, piece.pos.second + 40 * i });
-                    renderSquare({ piece.pos.first, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax);
-                    computeHitbox(piece, { piece.pos.first + 40, piece.pos.second + 40 * (i+1) });
-                    renderSquare({ piece.pos.first + 40, piece.pos.second + 40 * (i+1) }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first, piece.pos.second + screen.pieceSize.second * i });
+                    renderSquare({ piece.pos.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * (i+1) });
+                    renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * (i+1) }, piece.color, posMax, !onlyCalcPosMax);
                 }
         piece.posMax = posMax.at(0);
         break;
         case ePieceType::T:
             if (piece.rotation == 0 || piece.rotation == 360) {
-                computeHitbox(piece, { piece.pos.first + 40, piece.pos.second + 40 });
-                renderSquare({ piece.pos.first + 40, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second });
+                renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second }), renderSquare({ piece.pos.first + 40 * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second }), renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 90) {
-                computeHitbox(piece, { piece.pos.first, piece.pos.second + 40 });
-                renderSquare({ piece.pos.first, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first, piece.pos.second + screen.pieceSize.second });
+                renderSquare({ piece.pos.first, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40, piece.pos.second + 40 * i }), renderSquare({ piece.pos.first + 40, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * i }), renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 180){
-                computeHitbox(piece, { piece.pos.first + 40, piece.pos.second });
-                renderSquare({ piece.pos.first + 40, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second });
+                renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first + 40 * i, piece.pos.second + 40 }), renderSquare({ piece.pos.first + 40 * i, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second }), renderSquare({ piece.pos.first + screen.pieceSize.first * i, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
             }
             if (piece.rotation == 270) {
-                computeHitbox(piece, { piece.pos.first + 40, piece.pos.second + 40 });
-                renderSquare({ piece.pos.first + 40, piece.pos.second + 40 }, piece.color, posMax, !onlyCalcPosMax);
+                computeHitbox(piece, { piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second });
+                renderSquare({ piece.pos.first + screen.pieceSize.first, piece.pos.second + screen.pieceSize.second }, piece.color, posMax, !onlyCalcPosMax);
                 for (int i = 0; i <= 2; ++i)
-                    computeHitbox(piece, { piece.pos.first, piece.pos.second + 40 * i }), renderSquare({ piece.pos.first, piece.pos.second + 40 * i }, piece.color, posMax, !onlyCalcPosMax);
+                    computeHitbox(piece, { piece.pos.first, piece.pos.second + screen.pieceSize.second * i }), renderSquare({ piece.pos.first, piece.pos.second + screen.pieceSize.second * i }, piece.color, posMax, !onlyCalcPosMax);
             }
         piece.posMax = posMax.at(0);
         break;
@@ -375,7 +375,7 @@ void pInterface::drawPiece(pPiece &piece, bool onlyCalcPosMax) {
 void pInterface::drawBorder() {
     pColor red = graphics.createNewColor(255, 0, 0);
     for (auto i : border)
-        graphics.drawRect({ i.first, i.second }, { 40, 40 }, red);
+        graphics.drawRect({ i.first, i.second }, screen.pieceSize, red);
 }
 
 void pInterface::computeBorder() {
@@ -384,8 +384,8 @@ void pInterface::computeBorder() {
         for (auto k : pieces.at(j).hitbox)
             border.push_back(k);
     for (int i = 0; i <= 15; ++i) {
-        if (i <= 10) border.push_back({ i * 40, 15 * 40 });
-        border.push_back({ 0 * 40, i * 40 }), border.push_back({ 11 * 40, i * 40 });
+        if (i <= 10) border.push_back({ i * screen.pieceSize.first, 15 * screen.pieceSize.second });
+        border.push_back({ 0 * screen.pieceSize.first, i * screen.pieceSize.second }), border.push_back({ 11 * screen.pieceSize.first, i * screen.pieceSize.second });
     }
 }
 
@@ -393,10 +393,10 @@ std::pair<int, int> pInterface::predictFallingPosition() {
     computeBorder();
     std::vector<std::pair<std::pair<int, int>, int>> low;
     if (pieces.size() < 2) return { -1, -1 };
-    for (int i = pieces.at(pieces.size() - 2).pos.first / 40; i <= pieces.at(pieces.size() - 2).posMax.first / 40; ++i) {
+    for (int i = pieces.at(pieces.size() - 2).pos.first / screen.pieceSize.first; i <= pieces.at(pieces.size() - 2).posMax.first / screen.pieceSize.first; ++i) {
         std::vector<std::pair<int, int>> hitbox;
         for (auto j : pieces.at(pieces.size() - 2).hitbox)
-            if (j.first / 40 == i)
+            if (j.first / screen.pieceSize.first == i)
                     hitbox.push_back(j);
         std::sort(hitbox.begin(), hitbox.end(), [](auto first, auto second) {
           return first.second > second.second;
@@ -415,18 +415,19 @@ std::pair<int, int> pInterface::predictFallingPosition() {
     std::sort(low.begin(), low.end(), [](auto first, auto second) {
       return first.second < second.second;
     });
-    return { pieces.at(pieces.size() - 2).pos.first, pieces.at(pieces.size() - 2).pos.second + low.at(0).second - 40 };
+    return { pieces.at(pieces.size() - 2).pos.first, pieces.at(pieces.size() - 2).pos.second + low.at(0).second - screen.pieceSize.second };
 }
 
 void pInterface::delRow(int row) {
     for (int r = 0; r < pieces.size() - 2; ++r)
         for (int k = 0; k < pieces.at(r).hitbox.size(); ++k)
-            if (pieces.at(r).hitbox.at(k).second == row * 40)
+            if (pieces.at(r).hitbox.at(k).second == row * screen.pieceSize.second)
                 pieces.at(r).hitbox.erase(pieces.at(r).hitbox.begin() + k), --k;
     for (int r = 0; r < pieces.size() - 2; ++r)
         for (int k = 0; k < pieces.at(r).hitbox.size(); ++k) 
-            if (pieces.at(r).hitbox.at(k).second < row * 40)
-                pieces.at(r).hitbox.at(k).second += 40;
+            if (pieces.at(r).hitbox.at(k).second < row * screen.pieceSize.second)
+                pieces.at(r).hitbox.at(k).second += screen.pieceSize.second;
+    computeBorder();
 }
 
 void pInterface::checkLevelOrScoreIncrease() {
@@ -438,7 +439,7 @@ void pInterface::checkLevelOrScoreIncrease() {
         for (int i = 1; i <= 10; ++i)
             for (int r = 0; r < pieces.size() - 2; ++r)
                 for (auto k : pieces.at(r).hitbox)
-                    if (k == std::make_pair(40 * i, 40 * j))
+                    if (k == std::make_pair(screen.pieceSize.first * i, screen.pieceSize.second * j))
                         ++cnt;
         if (cnt == 10)
             rws[j]++;
@@ -467,10 +468,10 @@ void pInterface::checkLevelOrScoreIncrease() {
 void pInterface::automaticMove() {
     if (pieces.size() >= 2) {
         checkGameOver();
-        pieces.at(pieces.size() - 2).pos.second += 40;
+        pieces.at(pieces.size() - 2).pos.second += screen.pieceSize.second;
         checkGameOver();
         if (predictFallingPosition().second == pieces.at(pieces.size() - 2).pos.second) {
-            pieces.at(pieces.size() - 2).pos.second -= 40;
+            pieces.at(pieces.size() - 2).pos.second -= screen.pieceSize.second;
             spawnPiece();
             computeBorder();
             checkLevelOrScoreIncrease();
@@ -485,10 +486,10 @@ void pInterface::onKeyPress(unsigned char key) {
         bool makeMove = true;
         for (auto i : pieces.at(pieces.size() - 2).hitbox)
             for (auto j : border)
-                if (i.first - 40 == j.first && i.second == j.second) { makeMove = false; break; }
+                if (i.first - screen.pieceSize.first == j.first && i.second == j.second) { makeMove = false; break; }
         if (makeMove) {
-            pieces.at(pieces.size() - 2).pos.first -= 40;
-            pieces.at(pieces.size() - 2).posMax.first -= 40;
+            pieces.at(pieces.size() - 2).pos.first -= screen.pieceSize.first;
+            pieces.at(pieces.size() - 2).posMax.first -= screen.pieceSize.first;
             render();
         }
     }
@@ -496,10 +497,10 @@ void pInterface::onKeyPress(unsigned char key) {
         bool makeMove = true;
         for (auto i : pieces.at(pieces.size() - 2).hitbox)
             for (auto j : border)
-                if (i.first + 40 == j.first && i.second == j.second) { makeMove = false; break; }
+                if (i.first + screen.pieceSize.first == j.first && i.second == j.second) { makeMove = false; break; }
         if (makeMove) {
-            pieces.at(pieces.size() - 2).pos.first += 40;
-            pieces.at(pieces.size() - 2).posMax.first += 40;
+            pieces.at(pieces.size() - 2).pos.first += screen.pieceSize.first;
+            pieces.at(pieces.size() - 2).posMax.first += screen.pieceSize.first;
             render();
         }
     }

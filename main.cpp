@@ -11,7 +11,7 @@ void Render();
 
 pInterface interface(Render);
 
-pGraphics::pButon restart({ (17 * 40) / 2 - 4 * 20, 9 * 40 }, { 4 * 40, 40 }, interface.graphics.createNewColor(0, 255, 0), interface.graphics.createNewColor(0, 255, 0), GLUT_BITMAP_HELVETICA_18, interface.graphics.black, "Restart", [](bool active) {
+pGraphics::pButon restart({ (17 * interface.screen.pieceSize.first) / 2 - 4 * interface.screen.pieceSize.first / 2, 9 * interface.screen.pieceSize.second }, { 4 * interface.screen.pieceSize.first, interface.screen.pieceSize.second }, interface.graphics.createNewColor(0, 255, 0), interface.graphics.createNewColor(0, 255, 0), GLUT_BITMAP_HELVETICA_18, interface.graphics.black, "Restart", [](bool active) {
     if (interface.screen.gameOver) {
         interface.border.clear();
         interface.pieces.clear();
@@ -32,7 +32,7 @@ void Render() {
     interface.drawFrame();
     interface.drawPieces();
     interface.drawNextPiece();
-    //interface.drawBorder();
+    interface.drawBorder();
     interface.drawGameOverScreen();
 
     if (interface.screen.gameOver)
@@ -43,18 +43,33 @@ void Render() {
 
 void Resize(GLint newWidth, GLint newHeight) {
     if (newWidth >= 8 && newHeight >= 8) {
-        interface.screen.size = { newWidth, newHeight };
+        interface.screen.automaticMove = false;
 
+        for (auto &i : interface.pieces) {
+            i.pos = { 
+                (i.pos.first / interface.screen.pieceSize.first) * (newWidth / 17),
+                (i.pos.second / interface.screen.pieceSize.second) * (newHeight / 16)
+            };
+            for (auto &j : i.hitbox) {
+                j = { 
+                    (j.first / interface.screen.pieceSize.first) * (newWidth / 17),
+                    (j.second / interface.screen.pieceSize.second) * (newHeight / 16)
+                };    
+            }
+        }
+        interface.screen.size = { newWidth, newHeight };
+        interface.screen.pieceSize = { newWidth / 17, newHeight / 16 };
+        restart.updatePos({ (17 * interface.screen.pieceSize.first) / 2 - 4 * interface.screen.pieceSize.first / 2, 9 * interface.screen.pieceSize.second });
+        restart.updateSize({ 4 * interface.screen.pieceSize.first, interface.screen.pieceSize.second });
         glViewport( 0, 0, newWidth, newHeight );
         glMatrixMode( GL_PROJECTION );
         glLoadIdentity();
         glOrtho( 0, GLdouble (newWidth), GLdouble (newHeight), 0, 0, 100);
+        interface.computeBorder();
         Render();
         glutPostRedisplay();
+        interface.screen.automaticMove = true;
     }
-}
-
-void ProcessSpecialInput(int key, int x, int y) {
 }
 
 void ProcessInput(unsigned char key, int x, int y) {
@@ -126,7 +141,6 @@ void GL(int argc, char **argv) {
 
     glutDisplayFunc(Render);
     glutKeyboardFunc(ProcessInput);
-    glutSpecialFunc(ProcessSpecialInput);
     glutReshapeFunc(Resize);
     glutMouseFunc(HandleMouseKeys);
     glutPassiveMotionFunc(HandleMouseMovement);
