@@ -176,9 +176,9 @@ void pInterface::drawGameOverScreen() {
     if (screen.gameOver) {
         pColor red = graphics.createNewColor(255, 0, 0);
         void* font = GLUT_BITMAP_HELVETICA_18;        
-        std::pair<int, int> scoreTextSize = graphics.getTextSize(std::string("Score: ").append(std::to_string(screen.score)).c_str(), font);
-        std::pair<int, int> levelTextSize = graphics.getTextSize(std::string("Level: ").append(std::to_string(screen.level)).c_str(), font);
-        std::pair<int, int> linesTextSize = graphics.getTextSize(std::string("Lines: ").append(std::to_string(screen.lines)).c_str(), font);
+        std::pair<double, double> scoreTextSize = graphics.getTextSize(std::string("Score: ").append(std::to_string(screen.score)).c_str(), font);
+        std::pair<double, double> levelTextSize = graphics.getTextSize(std::string("Level: ").append(std::to_string(screen.level)).c_str(), font);
+        std::pair<double, double> linesTextSize = graphics.getTextSize(std::string("Lines: ").append(std::to_string(screen.lines)).c_str(), font);
         graphics.drawRect({ 0, 6 * screen.pieceSize.second }, { 17 * screen.pieceSize.first, 4 * screen.pieceSize.second }, red);
         graphics.drawText({ (17 * screen.pieceSize.first) / 2 - scoreTextSize.first / 2, 6 * screen.pieceSize.second + screen.pieceSize.second / 2 + scoreTextSize.second / 2 }, font, std::string("Score: ").append(std::to_string(screen.score)).c_str(), graphics.black);
         graphics.drawText({ (17 * screen.pieceSize.first) / 2 - levelTextSize.first / 2, 7 * screen.pieceSize.second + screen.pieceSize.second / 2 + levelTextSize.second / 2 }, font, std::string("Level: ").append(std::to_string(screen.level)).c_str(), graphics.black);
@@ -197,7 +197,7 @@ void pInterface::spawnPiece() {
     checkGameOver();
 }
 
-void pInterface::drawSquare(std::pair<int, int> pos, pPieceColor color) {
+void pInterface::drawSquare(std::pair<double, double> pos, pPieceColor color) {
     graphics.drawPolygon(pos, { pos.first + screen.pieceSize.first, pos.second }, 
                         { pos.first + screen.pieceSize.first - screen.pieceSize.first / 8, pos.second + screen.pieceSize.second / 8 },
                         { pos.first + screen.pieceSize.first / 8, pos.second + screen.pieceSize.second / 8 }, color.up);
@@ -215,11 +215,11 @@ void pInterface::drawSquare(std::pair<int, int> pos, pPieceColor color) {
     graphics.drawRect({ pos.first + screen.pieceSize.first / 8, pos.second + screen.pieceSize.second / 8 }, { screen.pieceSize.first - screen.pieceSize.first / 4, screen.pieceSize.second - screen.pieceSize.second / 4 }, color.main);
 }
 
-void pInterface::computeHitbox(pPiece &piece, std::pair<int, int> pos) {
+void pInterface::computeHitbox(pPiece &piece, std::pair<double, double> pos) {
     piece.hitbox.push_back(pos);
 }
 
-void pInterface::renderSquare(std::pair<int, int> pos, pPieceColor color, std::vector<std::pair<int, int>> &posMax, bool show) {
+void pInterface::renderSquare(std::pair<double, double> pos, pPieceColor color, std::vector<std::pair<double, double>> &posMax, bool show) {
     if (show) drawSquare(pos, color);
     posMax.push_back(pos);
     std::vector<int> Xmax;
@@ -234,7 +234,7 @@ void pInterface::renderSquare(std::pair<int, int> pos, pPieceColor color, std::v
 }
 
 void pInterface::drawPiece(pPiece &piece, bool onlyCalcPosMax) {
-    std::vector<std::pair<int, int>> posMax;
+    std::vector<std::pair<double, double>> posMax;
     piece.hitbox.clear();
     switch (piece.type) {
         case ePieceType::I:
@@ -389,19 +389,19 @@ void pInterface::computeBorder() {
     }
 }
 
-std::pair<int, int> pInterface::predictFallingPosition() {
+std::pair<double, double> pInterface::predictFallingPosition() {
     computeBorder();
-    std::vector<std::pair<std::pair<int, int>, int>> low;
+    std::vector<std::pair<std::pair<double, double>, int>> low;
     if (pieces.size() < 2) return { -1, -1 };
     for (int i = pieces.at(pieces.size() - 2).pos.first / screen.pieceSize.first; i <= pieces.at(pieces.size() - 2).posMax.first / screen.pieceSize.first; ++i) {
-        std::vector<std::pair<int, int>> hitbox;
+        std::vector<std::pair<double, double>> hitbox;
         for (auto j : pieces.at(pieces.size() - 2).hitbox)
             if (j.first / screen.pieceSize.first == i)
                     hitbox.push_back(j);
         std::sort(hitbox.begin(), hitbox.end(), [](auto first, auto second) {
           return first.second > second.second;
         });
-        std::pair<int, int> nearestBorder = {hitbox.at(0).first, -1};
+        std::pair<double, double> nearestBorder = {hitbox.at(0).first, -1};
         for (auto k : border) {
             if (k.first == hitbox.at(0).first && k.second - hitbox.at(0).second >= 0) {
                 if (nearestBorder.second == -1)
@@ -543,7 +543,7 @@ void pInterface::checkGameOver() {
     if (pieces.size() >= 2) {
         for (int r = 0; r < pieces.size() - 2; ++r)
             for (auto k : pieces.at(r).hitbox)
-                if (k.first == pieces.at(pieces.size() - 2).pos.first && k.second == pieces.at(pieces.size() - 2).pos.second)
+                if (k.first == pieces.at(pieces.size() - 2).pos.first && k.second == pieces.at(pieces.size() - 2).pos.second || k.second <= 0)
                     screen.gameOver = true;
     }
 }

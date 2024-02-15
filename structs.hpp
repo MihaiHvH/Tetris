@@ -14,10 +14,10 @@ struct pColor {
 
 struct pScreen {
     std::string windowName = "Tetris";
-    std::pair<int, int> size;
-    std::pair<int, int> initialSize = { 680, 640 };
-    std::pair<int, int> mousePointer;
-    std::pair<int, int> pieceSize = { 40, 40 };
+    std::pair<double, double> size;
+    std::pair<double, double> initialSize = { 680, 640 };
+    std::pair<double, double> mousePointer;
+    std::pair<double, double> pieceSize = { 40, 40 };
     bool leftClick = false;
     bool rightClick = false;
     bool leftClickDrag = false;
@@ -48,9 +48,9 @@ struct pPieceColor {
 };
 
 struct pPiece {
-    std::vector<std::pair<int, int>> hitbox;
-    std::pair<int, int> pos;
-    std::pair<int, int> posMax;
+    std::vector<std::pair<double, double>> hitbox;
+    std::pair<double, double> pos;
+    std::pair<double, double> posMax;
     pPieceColor color;
     ePieceType type;
     int rotation = 0;

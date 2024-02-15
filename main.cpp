@@ -32,8 +32,19 @@ void Render() {
     interface.drawFrame();
     interface.drawPieces();
     interface.drawNextPiece();
-    interface.drawBorder();
+    //interface.drawBorder();
     interface.drawGameOverScreen();
+
+    if (!interface.screen.gameOver) { //draw score
+        pColor red = interface.graphics.createNewColor(255, 0, 0);
+        void* font = GLUT_BITMAP_HELVETICA_18;        
+        std::pair<double, double> scoreTextSize = interface.graphics.getTextSize(std::string("Score: ").append(std::to_string(interface.screen.score)).c_str(), font);
+        std::pair<double, double> levelTextSize = interface.graphics.getTextSize(std::string("Level: ").append(std::to_string(interface.screen.level)).c_str(), font);
+        std::pair<double, double> linesTextSize = interface.graphics.getTextSize(std::string("Lines: ").append(std::to_string(interface.screen.lines)).c_str(), font);
+        interface.graphics.drawText({ (4 * interface.screen.pieceSize.first) / 2 + 12 * interface.screen.pieceSize.first - scoreTextSize.first / 2, 6 * interface.screen.pieceSize.second + interface.screen.pieceSize.second / 2 + scoreTextSize.second / 2 }, font, std::string("Score: ").append(std::to_string(interface.screen.score)).c_str(), interface.graphics.black);
+        interface.graphics.drawText({ (4 * interface.screen.pieceSize.first) / 2 + 12 * interface.screen.pieceSize.first - levelTextSize.first / 2, 7 * interface.screen.pieceSize.second + interface.screen.pieceSize.second / 2 + levelTextSize.second / 2 }, font, std::string("Level: ").append(std::to_string(interface.screen.level)).c_str(), interface.graphics.black);
+        interface.graphics.drawText({ (4 * interface.screen.pieceSize.first) / 2 + 12 * interface.screen.pieceSize.first - linesTextSize.first / 2, 8 * interface.screen.pieceSize.second + interface.screen.pieceSize.second / 2 + linesTextSize.second / 2 }, font, std::string("Lines: ").append(std::to_string(interface.screen.lines)).c_str(), interface.graphics.black);
+    }
 
     if (interface.screen.gameOver)
         restart.draw(interface);
@@ -47,20 +58,20 @@ void Resize(GLint newWidth, GLint newHeight) {
 
         for (auto &i : interface.pieces) {
             i.pos = { 
-                (i.pos.first / interface.screen.pieceSize.first) * (newWidth / 17),
-                (i.pos.second / interface.screen.pieceSize.second) * (newHeight / 16)
+                (i.pos.first / interface.screen.pieceSize.first) * (newWidth / 17.f),
+                (i.pos.second / interface.screen.pieceSize.second) * (newHeight / 16.f)
             };
             for (auto &j : i.hitbox) {
                 j = { 
-                    (j.first / interface.screen.pieceSize.first) * (newWidth / 17),
-                    (j.second / interface.screen.pieceSize.second) * (newHeight / 16)
+                    (j.first / interface.screen.pieceSize.first) * (newWidth / 17.f),
+                    (j.second / interface.screen.pieceSize.second) * (newHeight / 16.f)
                 };    
             }
         }
         interface.screen.size = { newWidth, newHeight };
-        interface.screen.pieceSize = { newWidth / 17, newHeight / 16 };
-        restart.updatePos({ (17 * interface.screen.pieceSize.first) / 2 - 4 * interface.screen.pieceSize.first / 2, 9 * interface.screen.pieceSize.second });
-        restart.updateSize({ 4 * interface.screen.pieceSize.first, interface.screen.pieceSize.second });
+        interface.screen.pieceSize = { newWidth / 17.f, newHeight / 16.f };
+        restart.updatePos({ (17.f * interface.screen.pieceSize.first) / 2 - 4.f * interface.screen.pieceSize.first / 2, 9.f * interface.screen.pieceSize.second });
+        restart.updateSize({ 4.f * interface.screen.pieceSize.first, interface.screen.pieceSize.second });
         glViewport( 0, 0, newWidth, newHeight );
         glMatrixMode( GL_PROJECTION );
         glLoadIdentity();
